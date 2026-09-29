@@ -1,25 +1,34 @@
 module "naming" {
-  source  = "cloudnationhq/naming/azure"
-  version = "~> 0.32"
+  source  = "codectl/naming/azure"
+  version = "~> 0.1"
 
   suffix = ["demo", "dev"]
 }
 
+module "regions" {
+  source  = "codectl/locations/azure"
+  version = "~> 1.0"
+
+  location = {
+    primary = "northeurope"
+  }
+}
+
 module "rg" {
-  source  = "cloudnationhq/rg/azure"
-  version = "~> 3.0"
+  source  = "codectl/rg/azure"
+  version = "~> 1.0"
 
   groups = {
     demo = {
       name     = module.naming.resource_group.name_unique
-      location = "northeurope"
+      location = module.regions.location.primary.name
     }
   }
 }
 
 module "mag" {
-  source  = "cloudnationhq/mag/azure"
-  version = "~> 4.0"
+  source  = "codectl/mag/azure"
+  version = "~> 1.0"
 
   groups = {
     demo = {
@@ -39,8 +48,8 @@ module "mag" {
 }
 
 module "monitor_workspace" {
-  source  = "cloudnationhq/alerts/azure//modules/monitor_workspace"
-  version = "~> 3.0"
+  source  = "codectl/alerts/azure//modules/monitor_workspace"
+  version = "~> 1.0"
 
   workspace = {
     name                = "mw-demo"
@@ -50,8 +59,8 @@ module "monitor_workspace" {
 }
 
 module "kv" {
-  source  = "cloudnationhq/kv/azure"
-  version = "~> 6.0"
+  source  = "codectl/kv/azure"
+  version = "~> 1.0"
 
   vault = {
     name                = module.naming.key_vault.name_unique
@@ -61,8 +70,8 @@ module "kv" {
 }
 
 module "identity" {
-  source  = "cloudnationhq/uai/azure"
-  version = "~> 3.0"
+  source  = "codectl/uai/azure"
+  version = "~> 1.0"
 
   identity = {
     name                = module.naming.user_assigned_identity.name
@@ -72,8 +81,8 @@ module "identity" {
 }
 
 module "aks" {
-  source  = "cloudnationhq/aks/azure"
-  version = "~> 5.0"
+  source  = "codectl/aks/azure"
+  version = "~> 1.0"
 
   keyvault = module.kv.vault.id
 
@@ -103,8 +112,8 @@ module "aks" {
 }
 
 module "alerts" {
-  source  = "cloudnationhq/alerts/azure"
-  version = "~> 3.0"
+  source  = "codectl/alerts/azure"
+  version = "~> 1.0"
 
   alerts = {
     resource_group_name = module.rg.groups.demo.name
